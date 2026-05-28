@@ -5,10 +5,11 @@ import dto.CreateBoardResponse;
 import dto.ErrorResponse;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
+import io.restassured.response.Response;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import service.BoardsService;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
@@ -16,10 +17,11 @@ import java.util.UUID;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.*;
+import static helper.ResponseValidator.validate;
 
-public class CreateBoardTestDto {
+public class CreateBoardDtoTest extends BaseTest {
+
+    BoardsService boardsService = new BoardsService();
 
     @DataProvider(name = "validNames")
     public Object[][] validNames() {
@@ -31,28 +33,25 @@ public class CreateBoardTestDto {
     }
 
     @Test(dataProvider = "validNames")
-    public void createBoardWithRequiresFields(String name) {
-        String apiKey = System.getenv("TRELLO_KEY");
-        String apiToken = System.getenv("TRELLO_TOKEN");
-        RestAssured.baseURI = "https://api.trello.com/1";
+    public void createBoardWithRequiresFieldsMyVersion(String name) {
 
-        CreateBoardResponse response =
-                given()
-                        .contentType(ContentType.JSON)
-                        .queryParam("key", apiKey)
-                        .queryParam("token", apiToken)
-                        .queryParam("name", name)
-                        .when()
-                        .post("/boards")
-                        .then()
-                        .log()
-                        .ifValidationFails()
-                        .statusCode(200)
-                        .extract()
-                        .as(CreateBoardResponse.class);
-
-        assertThat(response.getName()).isEqualTo(name);
+        Response response = boardsService.createBoard(name);
+        validate(response)
+                .statusCode(200);
+        CreateBoardResponse createBoardResponse = response.as(CreateBoardResponse.class);
+        assertThat(createBoardResponse.getName()).isEqualTo(name);
     }
+
+    @Test(dataProvider = "validNames")
+    public void createBoardWithRequiresFields2(String name) {
+
+        Response response = boardsService.createBoard(name);
+
+        assertThat(response.getStatusCode()).isEqualTo(200);
+        CreateBoardResponse createBoardResponse = response.as(CreateBoardResponse.class);
+        assertThat(createBoardResponse.getName()).isEqualTo(name);
+    }
+
 
     @Test
     public void createBoardWithRequiresFields() {
@@ -90,6 +89,7 @@ public class CreateBoardTestDto {
                 {null},
         };
     }
+
     @Test(dataProvider = "invalidNames")
     public void createBoardWithInvalidNameShouldFail(String name) {
         String apiKey = System.getenv("TRELLO_KEY");
@@ -114,6 +114,18 @@ public class CreateBoardTestDto {
 
         assertThat(response.getMessage()).isEqualTo("invalid value for name");
         assertThat(response.getError()).isEqualTo("ERROR");
+    }
+
+    @Test(dataProvider = "invalidNames")
+    public void createBoardWithInvalidNameShouldFailMyVersion(String name) {
+
+        Response response = boardsService.createBoard(name);
+        validate(response)
+                .statusCode(400);
+        ErrorResponse errorResponse = response.as(ErrorResponse.class);
+
+        assertThat(errorResponse.getMessage()).isEqualTo("invalid value for name");
+        assertThat(errorResponse.getError()).isEqualTo("ERROR");
     }
 
     @Test

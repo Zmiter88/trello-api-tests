@@ -139,6 +139,7 @@ public class DeleteDoCwiczen extends BaseTest {
     }
     @Test
     public void deleteAllBoardsTest() {
+        getRequestSpecification();
         BoardCleanupService cleanupService = new BoardCleanupService();
         cleanupService.deleteAllBoards();
         List<String> remainingBoards = cleanupService.getAllBoards();

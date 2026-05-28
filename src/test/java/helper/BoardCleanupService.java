@@ -1,32 +1,21 @@
 package helper;
 
-import dto.DeleteBoardResponse;
 import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
+import service.BaseService;
 
 import java.util.List;
-import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.is;
 
-public class BoardCleanupService {
-
-    String apiKey = System.getenv("TRELLO_KEY");
-    String apiToken = System.getenv("TRELLO_TOKEN");
-
-    public BoardCleanupService() {
-        RestAssured.baseURI = "https://api.trello.com/1";
-    }
+public class BoardCleanupService extends BaseService {
 
     public void deleteAllBoards() {
 
         List<String> boardIds =
 
-        given()
-                .queryParam("key", apiKey)
-                .queryParam("token", apiToken)
+   getRequestSpecification()
                 .when()
                 .get("/member/me/boards")
                 .then()
@@ -38,9 +27,7 @@ public class BoardCleanupService {
                 .getList("id");
 
         for (String boardId : boardIds) {
-            given()
-                    .queryParam("key", apiKey)
-                    .queryParam("token", apiToken)
+           getRequestSpecification()
                     .pathParam("id", boardId)
                     .when()
                     .delete("/boards/{id}")
@@ -50,9 +37,7 @@ public class BoardCleanupService {
     }
 
     public List<String> getAllBoards() {
-        return given()
-                .queryParam("key", apiKey)
-                .queryParam("token", apiToken)
+        return getRequestSpecification()
                 .when()
                 .get("/member/me/boards")
                 .then()
