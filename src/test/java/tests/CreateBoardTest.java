@@ -2,6 +2,7 @@ package tests;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.specification.RequestSpecification;
 import jdk.jfr.Description;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.testng.annotations.DataProvider;
@@ -14,21 +15,15 @@ import java.util.UUID;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
-public class CreateBoardTest {
+public class CreateBoardTest extends BaseTest {
 
     @Test
     public void createBoardWithRequiresFieldsTest() {
-        String apiKey = System.getenv("TRELLO_KEY");
-        String apiToken = System.getenv("TRELLO_TOKEN");
         String boardName = "board " + UUID.randomUUID();
         String boardId = "69eb592c5a709fd9c3edcf99";
-        RestAssured.baseURI = "https://api.trello.com/1";
 
-        given()
-                .contentType(ContentType.JSON)
+        getRequestSpecification()
                 .queryParam("name", boardName)
-                .queryParam("key", apiKey)
-                .queryParam("token", apiToken)
                 .when()
                 .post("/boards")
                 .then()
@@ -86,15 +81,14 @@ public class CreateBoardTest {
     @Description("If prefs_background is invalid set default value blue")
     @Test
     public void shouldSetDefaultBlueWhenPrefsBackgroundIsInvalid() {
-        String apiKey = System.getenv("TRELLO_KEY");
+        String apikey = System.getenv("TRELLO_KEY");
         String apiToken = System.getenv("TRELLO_TOKEN");
         String boardName = "board " + UUID.randomUUID();
         String prefsBackground = "invalid_" + UUID.randomUUID();
         RestAssured.baseURI = "https://api.trello.com/1";
 
-        given()
-                .contentType(ContentType.JSON)
-                .queryParam("key", apiKey)
+        getRequestSpecification()
+                .queryParam("key", apikey)
                 .queryParam("token", apiToken)
                 .queryParam("name", boardName)
                 .queryParam("prefs_background", prefsBackground)
@@ -108,6 +102,7 @@ public class CreateBoardTest {
                 .body("prefs.background", equalTo("blue"));
 
     }
+
 
     @Description("If prefs_background is null set default value blue")
     @Test

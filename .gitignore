@@ -36,3 +36,6 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Trello framework ###
+src/main/resources/config.properties
