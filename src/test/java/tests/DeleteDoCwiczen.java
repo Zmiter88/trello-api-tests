@@ -1,12 +1,15 @@
 package tests;
 
+import dto.CreateBoardRequest;
 import dto.CreateBoardResponse;
 import dto.DeleteBoardResponse;
+import factory.CreateBoardRequestFactory;
 import helper.BoardCleanupService;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.testng.annotations.Test;
+import service.BoardsService;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 public class DeleteDoCwiczen extends BaseTest {
+
+    BoardsService boardsService = new BoardsService();
 
     @Test
     public void deleteBoardHappyPath() {
@@ -27,6 +32,26 @@ public class DeleteDoCwiczen extends BaseTest {
         assertThat(createBoardResponse.getName()).isEqualTo(boardName);
 
         DeleteBoardResponse deleteBoardResponse = deleteBoard(createBoardResponse.getId());
+
+        assertThat(deleteBoardResponse.getValue()).isNull();
+    }
+
+    @Test
+    public void deleteBoardHappyPathMyVersion() {
+
+        CreateBoardRequest request = CreateBoardRequestFactory.defaultBoard();
+
+        Response response = boardsService.createBoard(request);
+
+        assertThat(response.getStatusCode()).isEqualTo(200);
+
+        String boardId = response.as(CreateBoardResponse.class).getId();
+
+        Response deleteResponse = boardsService.deleteBoard(boardId);
+
+        assertThat(deleteResponse.getStatusCode()).isEqualTo(200);
+
+        DeleteBoardResponse deleteBoardResponse = deleteResponse.as(DeleteBoardResponse.class);
 
         assertThat(deleteBoardResponse.getValue()).isNull();
     }

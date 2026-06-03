@@ -1,17 +1,12 @@
 package dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
+@Getter
 public class DeleteBoardResponse {
 
     @JsonProperty("_value")
     private Object value;
 
-    public Object getValue() {
-        return value;
-    }
-
-    public void setValue(Object value) {
-        this.value = value;
-    }
 }

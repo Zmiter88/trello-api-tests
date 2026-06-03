@@ -1,13 +1,11 @@
 package dto;
 
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+@Builder
 public class CreateCardRequest {
     private String idList;
 
-    public String getIdList() {
-        return idList;
-    }
-
-    public void setIdList(String idList) {
-        this.idList = idList;
-    }
 }
