@@ -3,17 +3,16 @@ package service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import config.Endpoint;
 import dto.CreateBoardRequest;
+import dto.UpdateBoardRequest;
 import io.restassured.response.Response;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class BoardsService extends BaseService {
 
-    public Response createBoard(CreateBoardRequest request) {
+    protected final ObjectMapper mapper = new ObjectMapper();
 
-        ObjectMapper mapper = new ObjectMapper();
+    public Response createBoard(CreateBoardRequest request) {
 
         Map<String, Object> params = mapper.convertValue(request, Map.class);
         return getRequestSpecification()
@@ -34,5 +33,15 @@ public class BoardsService extends BaseService {
                 .pathParam("id", boardId)
                 .when()
                 .get(Endpoint.BOARDS.getUrl() + "/{id}");
+    }
+
+    public Response updateBoard(String boardId, UpdateBoardRequest updateRequest) {
+
+        Map<String, Object> params = mapper.convertValue(updateRequest, Map.class);
+        return getRequestSpecification()
+                .pathParam("id", boardId)
+                .queryParams(params)
+                .when()
+                .put(Endpoint.BOARDS.getUrl() + "/{id}");
     }
 }

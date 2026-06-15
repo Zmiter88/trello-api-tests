@@ -24,6 +24,6 @@ public class ListsService extends BaseService {
         return getRequestSpecification()
                 .pathParam("id", listId)
                 .when()
-                .get(Endpoint.CARDS.getUrl() + "/{id}");
+                .get(Endpoint.LISTS.getUrl() + "/{id}");
     }
 }

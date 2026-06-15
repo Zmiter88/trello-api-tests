@@ -4,9 +4,9 @@ import dto.CreateListRequest;
 
 public class CreateListsRequestFactory {
 
-    public static CreateListRequest withName(String name, String idBoard) {
+    public static CreateListRequest withName(String listName, String idBoard) {
         return CreateListRequest.builder()
-                .listName(name)
+                .listName(listName)
                 .idBoard(idBoard)
                 .build();
     }

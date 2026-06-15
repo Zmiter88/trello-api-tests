@@ -270,5 +270,4 @@ public class CreateBoardDtoTest extends BaseTest {
   assertThat(createBoardResponse.getName()).isEqualTo(boardName);
   assertThat(createBoardResponse.getPrefs().getBackground()).isEqualTo(defaultColor);
     }
-
 }

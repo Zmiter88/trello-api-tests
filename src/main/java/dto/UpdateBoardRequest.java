@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateBoardRequest {
+public class UpdateBoardRequest {
     private String name;
     @JsonProperty("prefs_background")
     private String prefsBackground;
