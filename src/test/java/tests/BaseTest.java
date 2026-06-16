@@ -1,8 +1,10 @@
 package tests;
 
 import config.ConfigProperties;
+import io.qameta.allure.testng.AllureTestNg;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
+import org.testng.annotations.Listeners;
 
 import java.io.FileReader;
 import java.io.IOException;

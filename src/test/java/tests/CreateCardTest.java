@@ -4,6 +4,7 @@ import dto.*;
 import factory.CreateBoardRequestFactory;
 import factory.CreateCardRequestFactory;
 import factory.CreateListsRequestFactory;
+import io.qameta.allure.*;
 import io.restassured.response.Response;
 import org.testng.annotations.Test;
 import service.BoardsService;
@@ -14,6 +15,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Epic("Trello API")
+@Feature("Cards")
 public class CreateCardTest {
 
     BoardsService boardsService = new BoardsService();
@@ -72,6 +75,5 @@ public class CreateCardTest {
 
         Response getList = listsService.getList(createListResponseToAssert.getId());
         assertThat(getList.getStatusCode()).isEqualTo(404);
-
     }
 }
