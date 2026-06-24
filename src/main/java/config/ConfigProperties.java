@@ -1,4 +1,4 @@
-package tests;
+package config;
 
 public class ConfigProperties {
 

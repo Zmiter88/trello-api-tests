@@ -5,9 +5,8 @@ import lombok.Getter;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
-public class CreateCardResponse {
-
- private String id;
- private String idList;
- private String idBoard;
+public class UpdateBoardResponse {
+    private String id;
+    private String name;
+    private Prefs prefs;
 }
