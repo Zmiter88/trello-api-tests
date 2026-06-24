@@ -19,14 +19,16 @@ public class BoardsService extends BaseService {
 
         Map<String, Object> params = mapper.convertValue(request, Map.class);
 
-        AllureAttachments.attachRequest("Create Board Request", request);
+        //Możliwość definiowania własnych pól w raporcie Allure, w tym wypadku będą pokazane tylko pola z klasy dto
+     //   AllureAttachments.attachRequest("Create Board Request", request);
 
         Response response = getRequestSpecification()
                 .queryParams(params)
                 .when()
                 .post(Endpoint.BOARDS.getUrl());
 
-        AllureAttachments.attachResponse("Create Board Response", response.getBody().asString());
+
+    //    AllureAttachments.attachResponse("Create Board Response", response.getBody().asString());
 
         return response;
     }
@@ -49,14 +51,14 @@ public class BoardsService extends BaseService {
     @Step("Get a board {boardId}")
     public Response getBoard(String boardId) {
 
-        AllureAttachments.attachRequest("Get Board Request", boardId);
+      //  AllureAttachments.attachRequest("Get Board Request", boardId);
 
         Response response = getRequestSpecification()
                 .pathParam("id", boardId)
                 .when()
                 .get(Endpoint.BOARDS.getUrl() + "/{id}");
 
-        AllureAttachments.attachResponse("Get Board Response", response.getBody().asString());
+     //   AllureAttachments.attachResponse("Get Board Response", response.getBody().asString());
 
         return response;
     }
@@ -66,15 +68,14 @@ public class BoardsService extends BaseService {
 
         Map<String, Object> params = mapper.convertValue(updateRequest, Map.class);
 
-        AllureAttachments.attachRequest("Update Board Request", updateRequest);
+    //    AllureAttachments.attachRequest("Update Board Request", updateRequest);
 
         Response response = getRequestSpecification()
                 .pathParam("id", boardId)
                 .queryParams(params)
                 .put(Endpoint.BOARDS.getUrl() + "/{id}");
 
-        AllureAttachments.attachResponse("Update Board Response",
-                response.getBody().asString());
+    //    AllureAttachments.attachResponse("Update Board Response", response.getBody().asString());
 
         return response;
     }
