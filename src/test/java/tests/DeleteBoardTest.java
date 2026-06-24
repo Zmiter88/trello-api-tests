@@ -18,7 +18,7 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-public class DeleteBoard extends BaseTest {
+public class DeleteBoardTest extends BaseTest {
 
     BoardsService boardsService = new BoardsService();
 
