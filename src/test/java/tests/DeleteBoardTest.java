@@ -5,6 +5,7 @@ import dto.CreateBoardResponse;
 import dto.DeleteBoardResponse;
 import factory.CreateBoardRequestFactory;
 import helper.BoardCleanupService;
+import io.qameta.allure.*;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
@@ -18,10 +19,15 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
+@Epic("Trello API")
+@Feature("Boards")
 public class DeleteBoardTest extends BaseTest {
 
     BoardsService boardsService = new BoardsService();
 
+    @Story("Delete board")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Verify that board was deleted")
     @Test
     public void deleteBoardHappyPath() {
 
@@ -57,8 +63,7 @@ public class DeleteBoardTest extends BaseTest {
     }
 
     private static String generateBoardName() {
-        String boardName = "board" + UUID.randomUUID();
-        return boardName;
+        return "board" + UUID.randomUUID();
     }
 
     private static DeleteBoardResponse deleteBoard(String boardId) {

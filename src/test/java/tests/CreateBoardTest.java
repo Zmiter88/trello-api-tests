@@ -5,6 +5,7 @@ import dto.CreateBoardRequest;
 import dto.CreateBoardResponse;
 import dto.ErrorResponse;
 import factory.CreateBoardRequestFactory;
+import io.qameta.allure.*;
 import io.restassured.response.Response;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -17,6 +18,8 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.containsString;
 
+@Epic("Trello API")
+@Feature("Boards")
 public class CreateBoardTest extends BaseTest {
 
     BoardsService boardsService = new BoardsService();
@@ -30,6 +33,9 @@ public class CreateBoardTest extends BaseTest {
         };
     }
 
+    @Story("Create board with valid name")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Verify that board can be created with valid name")
     @Test(dataProvider = "validNames")
     public void createBoardWithRequiresFieldsMyRefactor(String name) {
 
@@ -50,7 +56,9 @@ public class CreateBoardTest extends BaseTest {
         };
     }
 
-
+    @Story("Create board with invalid name")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Verify that board cannot be created with invalid name")
     @Test(dataProvider = "invalidNames")
     public void createBoardWithInvalidNameShouldFailRefactor(String name) {
 
@@ -64,6 +72,9 @@ public class CreateBoardTest extends BaseTest {
         assertThat(errorResponse.getError()).isEqualTo("ERROR");
     }
 
+    @Story("Create board with too long name")
+    @Severity(SeverityLevel.NORMAL)
+    @Description("Verify that board cannot be created with too long name")
     @Test
     public void createBoardWithTooLongNameShouldFailRefactor() {
 
@@ -91,6 +102,9 @@ public class CreateBoardTest extends BaseTest {
         };
     }
 
+    @Story("Create board with valid colors")
+    @Severity(SeverityLevel.NORMAL)
+    @Description("Verify that board can be created with valid colors")
     @Test(dataProvider = "validColors")
     public void shouldSetValidBackgroundFieldRefactor(String color) {
 
@@ -117,6 +131,9 @@ public class CreateBoardTest extends BaseTest {
         };
     }
 
+    @Story("Create board with invalid color")
+    @Severity(SeverityLevel.NORMAL)
+    @Description("Verify that board cannot be created with invalid colors")
     @Test(dataProvider = "invalidColors")
     public void shouldSetDefaultColorBlueWhenPrefsBackgroundIsInvalidRefactor(String color) {
 
