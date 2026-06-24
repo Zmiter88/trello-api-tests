@@ -152,7 +152,7 @@ public class DeleteBoardTest extends BaseTest {
         BoardCleanupService cleanupService = new BoardCleanupService();
         cleanupService.deleteAllBoards();
         List<String> remainingBoards = cleanupService.getAllBoards();
-        assertThat(remainingBoards.isEmpty());
+        assertThat(remainingBoards.isEmpty()).isTrue();
     }
 }
 
