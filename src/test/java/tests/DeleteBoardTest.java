@@ -1,13 +1,11 @@
 package tests;
 
-import dto.CreateBoardRequest;
+
 import dto.CreateBoardResponse;
 import dto.DeleteBoardResponse;
-import factory.CreateBoardRequestFactory;
 import helper.BoardCleanupService;
+import helper.BoardHelper;
 import io.qameta.allure.*;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.testng.annotations.Test;
 import service.BoardsService;
@@ -15,50 +13,25 @@ import service.BoardsService;
 import java.util.List;
 import java.util.UUID;
 
-import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+
 
 @Epic("Trello API")
 @Feature("Boards")
 public class DeleteBoardTest extends BaseTest {
 
     BoardsService boardsService = new BoardsService();
+    final private BoardHelper boardHelper = new BoardHelper();
 
     @Story("Delete board")
     @Severity(SeverityLevel.CRITICAL)
     @Description("Verify that board was deleted")
     @Test
-    public void deleteBoardHappyPath() {
+    public void deleteBoardHappyPathRefactor() {
 
-        String boardName = generateBoardName();
-
-        CreateBoardResponse createBoardResponse = createBoard(boardName);
-
-        assertThat(createBoardResponse.getName()).isEqualTo(boardName);
-
-        DeleteBoardResponse deleteBoardResponse = deleteBoard(createBoardResponse.getId());
-
-        assertThat(deleteBoardResponse.getValue()).isNull();
-    }
-
-    @Test
-    public void deleteBoardHappyPathMyVersion() {
-
-        CreateBoardRequest request = CreateBoardRequestFactory.defaultBoard();
-
-        Response response = boardsService.createBoard(request);
-
-        assertThat(response.getStatusCode()).isEqualTo(200);
-
-        String boardId = response.as(CreateBoardResponse.class).getId();
-
-        Response deleteResponse = boardsService.deleteBoard(boardId);
-
-        assertThat(deleteResponse.getStatusCode()).isEqualTo(200);
-
-        DeleteBoardResponse deleteBoardResponse = deleteResponse.as(DeleteBoardResponse.class);
-
+        CreateBoardResponse board = boardHelper.createBoardSuccessfully();
+        String boardId = board.getId();
+        DeleteBoardResponse deleteBoardResponse = boardHelper.deleteBoardSuccessfully(boardId);
         assertThat(deleteBoardResponse.getValue()).isNull();
     }
 
@@ -66,86 +39,21 @@ public class DeleteBoardTest extends BaseTest {
         return "board" + UUID.randomUUID();
     }
 
-    private static DeleteBoardResponse deleteBoard(String boardId) {
-        return getRequestSpecification()
-                .pathParam("id", boardId)
-                .when()
-                .delete("/boards/{id}")
-                .then()
-                .log()
-                .ifValidationFails()
-                .statusCode(200)
-                .extract()
-                .as(DeleteBoardResponse.class);
-    }
-
-    private static CreateBoardResponse createBoard(String boardName) {
-        return getRequestSpecification()
-                .queryParam("name", boardName)
-                .when()
-                .post("/boards")
-                .then()
-                .log()
-                .ifValidationFails()
-                .statusCode(200)
-                .extract()
-                .as(CreateBoardResponse.class);
-    }
-
+    @Story("Delete board")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Verify that already deleted board return status code 404")
     @Test
-    public void deleteBoardAlreadyDeleted() {
-        String apiKey = System.getenv("TRELLO_KEY");
-        String apiToken = System.getenv("TRELLO_TOKEN");
-        RestAssured.baseURI = "https://api.trello.com/1";
-        String boardName = generateBoardName();
+    public void deleteBoardAlreadyDeletedRefactor() {
 
-        CreateBoardResponse createBoardResponse =
-                given()
-                        .contentType(ContentType.JSON)
-                        .queryParam("key", apiKey)
-                        .queryParam("token", apiToken)
-                        .queryParam("name", boardName)
-                        .when()
-                        .post("/boards")
-                        .then()
-                        .log()
-                        .ifValidationFails()
-                        .statusCode(200)
-                        .extract()
-                        .as(CreateBoardResponse.class);
+        CreateBoardResponse board = boardHelper.createBoardSuccessfully();
+        String boardId = board.getId();
+        DeleteBoardResponse deleteBoardResponse = boardHelper.deleteBoardSuccessfully(boardId);
+        Response deletedBoardResponse = boardsService.deleteBoard(boardId);
+        assertThat(deletedBoardResponse.getStatusCode()).isEqualTo(404);
+        assertThat(deletedBoardResponse.getBody().asString()).contains("not found.");
 
-        assertThat(createBoardResponse.getName()).isEqualTo(boardName);
-
-        DeleteBoardResponse deleteBoardResponse =
-                given()
-                        .contentType(ContentType.JSON)
-                        .queryParam("key", apiKey)
-                        .queryParam("token", apiToken)
-                        .pathParam("id", createBoardResponse.getId())
-                        .when()
-                        .delete("/boards/{id}")
-                        .then()
-                        .log()
-                        .ifValidationFails()
-                        .statusCode(200)
-                        .extract()
-                        .as(DeleteBoardResponse.class);
-
-        assertThat(deleteBoardResponse.getValue()).isNull();
-
-        given()
-                .contentType(ContentType.JSON)
-                .queryParam("key", apiKey)
-                .queryParam("token", apiToken)
-                .pathParam("id", createBoardResponse.getId())
-                .when()
-                .delete("/boards/{id}")
-                .then()
-                .log()
-                .ifValidationFails()
-                .statusCode(404)
-                .body(equalTo("The requested resource was not found."));
     }
+
     @Test
     public void deleteAllBoardsTest() {
         getRequestSpecification();

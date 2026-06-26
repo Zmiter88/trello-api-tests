@@ -3,11 +3,8 @@ package dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-@Getter
+@Data
 @Builder
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class CreateBoardRequest {
     private String name;
     @JsonProperty("prefs_background")

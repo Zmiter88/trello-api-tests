@@ -1,13 +1,13 @@
 package tests;
 
 import dto.*;
-import factory.CreateBoardRequestFactory;
 import factory.UpdateBoardRequestFactory;
+import helper.BoardHelper;
 import io.qameta.allure.*;
 import io.restassured.response.Response;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import service.BaseService;
 import service.BoardsService;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,7 +16,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Feature("Boards")
 public class UpdateBoardTest extends BaseTest {
 
-    BoardsService boardsService = new BoardsService();
+    private final BoardsService boardsService = new BoardsService();
+    private final BoardHelper boardHelper = new BoardHelper();
+    private String boardId;
 
     @Story("Update board")
     @Severity(SeverityLevel.CRITICAL)
@@ -25,18 +27,12 @@ public class UpdateBoardTest extends BaseTest {
     public void shouldUpdateBoard() {
 
         // Tworzenie boarda
-        CreateBoardRequest request = CreateBoardRequestFactory.defaultBoard();
-
-        Response response = boardsService.createBoard(request);
-        assertThat(response.getStatusCode()).isEqualTo(200);
-        CreateBoardResponse createBoardResponse = response.as(CreateBoardResponse.class);
+        CreateBoardResponse board = boardHelper.createBoardSuccessfully();
+        boardId = board.getId();
 
         // Update boarda
         UpdateBoardRequest updateBoardRequest = UpdateBoardRequestFactory.defaultUpdate();
-
-        Response updatedResponse = boardsService.updateBoard(createBoardResponse.getId(), updateBoardRequest);
-        assertThat(updatedResponse.getStatusCode()).isEqualTo(200);
-        UpdateBoardResponse updateDto = updatedResponse.as(UpdateBoardResponse.class);
+        UpdateBoardResponse updateDto = boardHelper.updateBoardSuccessfully(board, updateBoardRequest);
         assertThat(updateDto.getName()).isEqualTo(updateBoardRequest.getName());
         assertThat(updateDto.getPrefs().getBackground()).isEqualTo(updateBoardRequest.getPrefsBackground());
     }
@@ -56,21 +52,19 @@ public class UpdateBoardTest extends BaseTest {
     public void shouldNotAllowUpdateBoardWithInvalidName(String boardName) {
 
         // Tworzenie boarda
-        CreateBoardRequest request = CreateBoardRequestFactory.defaultBoard();
-
-        Response response = boardsService.createBoard(request);
-        assertThat(response.getStatusCode()).isEqualTo(200);
-        CreateBoardResponse createBoardResponse = response.as(CreateBoardResponse.class);
+        CreateBoardResponse board = boardHelper.createBoardSuccessfully();
+        boardId = board.getId();
 
         // Update boarda
         UpdateBoardRequest updateBoardRequest = UpdateBoardRequestFactory.withName(boardName);
-
-        Response updatedResponse = boardsService.updateBoard(createBoardResponse.getId(), updateBoardRequest);
+        Response updatedResponse = boardsService.updateBoard(board.getId(), updateBoardRequest);
         assertThat(updatedResponse.getStatusCode()).isEqualTo(400);
         ErrorResponse errorDto = updatedResponse.as(ErrorResponse.class);
         assertThat(errorDto.getMessage()).isEqualTo("invalid value for name");
         assertThat(errorDto.getError()).isEqualTo("ERROR");
     }
+
+
 
     @Story("Update board with invalid id")
     @Severity(SeverityLevel.CRITICAL)
@@ -85,5 +79,13 @@ public class UpdateBoardTest extends BaseTest {
         Response updatedResponse = boardsService.updateBoard(invalidId, updateBoardRequest);
         assertThat(updatedResponse.getStatusCode()).isEqualTo(400);
         assertThat(updatedResponse.getBody().asString()).contains("invalid id");
+    }
+
+    @AfterMethod(alwaysRun = true)
+    public void cleanup() {
+        if (boardId != null) {
+            boardHelper.cleanupBoard(boardId);
+            boardId = null;
+        }
     }
 }

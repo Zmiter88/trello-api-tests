@@ -50,7 +50,7 @@ public class CreateBoardTest extends BaseTest {
 
     @DataProvider(name = "invalidNames")
     public Object[][] invalidNames() {
-        return new Object[][] {
+        return new Object[][]{
                 {""},
                 {null},
         };
@@ -89,7 +89,7 @@ public class CreateBoardTest extends BaseTest {
 
     @DataProvider(name = "validColors")
     public Object[][] validColors() {
-        return new Object[][] {
+        return new Object[][]{
                 {"blue"},
                 {"orange"},
                 {"green"},
@@ -123,7 +123,7 @@ public class CreateBoardTest extends BaseTest {
 
     @DataProvider(name = "invalidColors")
     public Object[][] invalidColors() {
-        return new Object[][] {
+        return new Object[][]{
                 {""},
                 {" "},
                 {"invalidColor"},
@@ -140,15 +140,39 @@ public class CreateBoardTest extends BaseTest {
         String boardName = RandomDataGenerator.boardName();
         String defaultColor = "blue";
 
-  CreateBoardRequest request = CreateBoardRequest.builder()
-          .name(boardName)
-          .prefsBackground(color)
-          .build();
+        CreateBoardRequest request = CreateBoardRequest.builder()
+                .name(boardName)
+                .prefsBackground(color)
+                .build();
 
-  Response response = boardsService.createBoard(request);
-  assertThat(response.getStatusCode()).isEqualTo(200);
-  CreateBoardResponse createBoardResponse = response.as(CreateBoardResponse.class);
-  assertThat(createBoardResponse.getName()).isEqualTo(boardName);
-  assertThat(createBoardResponse.getPrefs().getBackground()).isEqualTo(defaultColor);
+        Response response = boardsService.createBoard(request);
+        assertThat(response.getStatusCode()).isEqualTo(200);
+        CreateBoardResponse createBoardResponse = response.as(CreateBoardResponse.class);
+        assertThat(createBoardResponse.getName()).isEqualTo(boardName);
+        assertThat(createBoardResponse.getPrefs().getBackground()).isEqualTo(defaultColor);
     }
+
+    @Test
+    public void test() {
+        int int1 = 123;
+        int int2 = 123;
+
+        String string1 = "abc";
+        String string2 = "abc";
+        String string3 = new String("abc");
+
+        CreateBoardRequest dto = CreateBoardRequest.builder()
+                .name("Patryk")
+                .desc("blabla")
+                .build();
+
+        CreateBoardRequest dto2 = CreateBoardRequest.builder()
+                .name("Patryk")
+                .desc("blabla")
+                .build();
+
+       // assertThat(dto.equals(dto2)).isTrue();
+        assertThat(dto == dto2).isTrue();
+    }
+
 }
