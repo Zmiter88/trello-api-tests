@@ -1,11 +1,10 @@
 package tests;
 
 import config.ConfigProperties;
-import io.qameta.allure.testng.AllureTestNg;
+import helper.BoardHelper;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
-import org.testng.annotations.Listeners;
-
+import org.testng.annotations.AfterMethod;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
@@ -14,15 +13,28 @@ import static io.restassured.RestAssured.given;
 
 public class BaseTest {
 
-
     protected static RequestSpecification getRequestSpecification() {
         return given()
                 .baseUri(ConfigProperties.BASE_URI)
                 .contentType(ContentType.JSON)
                 .queryParam("key", ConfigProperties.API_KEY)
                 .queryParam("token", ConfigProperties.API_TOKEN);
-
     }
+
+
+
+    protected BoardHelper boardHelper = new BoardHelper();
+    protected String boardId;
+
+    @AfterMethod(alwaysRun = true)
+    public void cleanup() {
+        if (boardId != null) {
+            boardHelper.cleanUpBoard(boardId);
+            boardId = null;
+        }
+    }
+
+
 
     private static final String FILE_PATH = "src/main/resources/config.properties";
 

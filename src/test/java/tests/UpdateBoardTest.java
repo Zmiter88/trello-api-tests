@@ -32,9 +32,9 @@ public class UpdateBoardTest extends BaseTest {
 
         // Update boarda
         UpdateBoardRequest updateBoardRequest = UpdateBoardRequestFactory.defaultUpdate();
-        UpdateBoardResponse updateDto = boardHelper.updateBoardSuccessfully(board, updateBoardRequest);
-        assertThat(updateDto.getName()).isEqualTo(updateBoardRequest.getName());
-        assertThat(updateDto.getPrefs().getBackground()).isEqualTo(updateBoardRequest.getPrefsBackground());
+        UpdateBoardResponse updateBoardResponse = boardHelper.updateBoardSuccessfully(board, updateBoardRequest);
+        assertThat(updateBoardResponse.getName()).isEqualTo(updateBoardRequest.getName());
+        assertThat(updateBoardResponse.getPrefs().getBackground()).isEqualTo(updateBoardRequest.getPrefsBackground());
     }
 
     @DataProvider(name = "invalidNames")
@@ -59,9 +59,9 @@ public class UpdateBoardTest extends BaseTest {
         UpdateBoardRequest updateBoardRequest = UpdateBoardRequestFactory.withName(boardName);
         Response updatedResponse = boardsService.updateBoard(board.getId(), updateBoardRequest);
         assertThat(updatedResponse.getStatusCode()).isEqualTo(400);
-        ErrorResponse errorDto = updatedResponse.as(ErrorResponse.class);
-        assertThat(errorDto.getMessage()).isEqualTo("invalid value for name");
-        assertThat(errorDto.getError()).isEqualTo("ERROR");
+        ErrorResponse errorResponse = updatedResponse.as(ErrorResponse.class);
+        assertThat(errorResponse.getMessage()).isEqualTo("invalid value for name");
+        assertThat(errorResponse.getError()).isEqualTo("ERROR");
     }
 
 
@@ -84,7 +84,7 @@ public class UpdateBoardTest extends BaseTest {
     @AfterMethod(alwaysRun = true)
     public void cleanup() {
         if (boardId != null) {
-            boardHelper.cleanupBoard(boardId);
+            boardHelper.cleanUpBoard(boardId);
             boardId = null;
         }
     }

@@ -34,7 +34,7 @@ public class BoardHelper {
         return deleteBoardResponse;
     }
 
-    public void cleanupBoard(String boardId) {
+    public void cleanUpBoard(String boardId) {
 
         Response response = boardsService.deleteBoard(boardId);
         if (response.statusCode() != 200 && response.statusCode() != 404) {

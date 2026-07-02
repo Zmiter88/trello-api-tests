@@ -37,16 +37,16 @@ public class CreateBoardTest extends BaseTest {
     @Severity(SeverityLevel.CRITICAL)
     @Description("Verify that board can be created with valid name")
     @Test(dataProvider = "validNames")
-    public void createBoardWithRequiresFieldsMyRefactor(String name) {
+    public void createBoardWithRequiresFieldsRefactor(String name) {
 
         CreateBoardRequest request = CreateBoardRequestFactory.withName(name);
 
         Response response = boardsService.createBoard(request);
         assertThat(response.getStatusCode()).isEqualTo(200);
         CreateBoardResponse createBoardResponse = response.as(CreateBoardResponse.class);
+        boardId = createBoardResponse.getId();
         assertThat(createBoardResponse.getName()).isEqualTo(name);
     }
-
 
     @DataProvider(name = "invalidNames")
     public Object[][] invalidNames() {
@@ -117,6 +117,7 @@ public class CreateBoardTest extends BaseTest {
         Response response = boardsService.createBoard(request);
         assertThat(response.getStatusCode()).isEqualTo(200);
         CreateBoardResponse createBoardResponse = response.as(CreateBoardResponse.class);
+        boardId = createBoardResponse.getId();
         assertThat(createBoardResponse.getName()).isEqualTo(boardName);
         assertThat(createBoardResponse.getPrefs().getBackground()).isEqualTo(color);
     }
@@ -150,29 +151,6 @@ public class CreateBoardTest extends BaseTest {
         CreateBoardResponse createBoardResponse = response.as(CreateBoardResponse.class);
         assertThat(createBoardResponse.getName()).isEqualTo(boardName);
         assertThat(createBoardResponse.getPrefs().getBackground()).isEqualTo(defaultColor);
-    }
-
-    @Test
-    public void test() {
-        int int1 = 123;
-        int int2 = 123;
-
-        String string1 = "abc";
-        String string2 = "abc";
-        String string3 = new String("abc");
-
-        CreateBoardRequest dto = CreateBoardRequest.builder()
-                .name("Patryk")
-                .desc("blabla")
-                .build();
-
-        CreateBoardRequest dto2 = CreateBoardRequest.builder()
-                .name("Patryk")
-                .desc("blabla")
-                .build();
-
-       // assertThat(dto.equals(dto2)).isTrue();
-        assertThat(dto == dto2).isTrue();
     }
 
 }
