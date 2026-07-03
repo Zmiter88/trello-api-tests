@@ -1,10 +1,11 @@
 package tests;
 
 import config.ConfigProperties;
-import helper.BoardHelper;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import org.testng.annotations.AfterMethod;
+import service.CleanupService;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
@@ -23,13 +24,13 @@ public class BaseTest {
 
 
 
-    protected BoardHelper boardHelper = new BoardHelper();
+    protected CleanupService cleanupService = new CleanupService();
     protected String boardId;
 
     @AfterMethod(alwaysRun = true)
     public void cleanup() {
         if (boardId != null) {
-            boardHelper.cleanUpBoard(boardId);
+            cleanupService.cleanUpBoard(boardId);
             boardId = null;
         }
     }

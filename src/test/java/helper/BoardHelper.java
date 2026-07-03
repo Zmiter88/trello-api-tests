@@ -33,12 +33,4 @@ public class BoardHelper {
         DeleteBoardResponse deleteBoardResponse = deleteResponse.as(DeleteBoardResponse.class);
         return deleteBoardResponse;
     }
-
-    public void cleanUpBoard(String boardId) {
-
-        Response response = boardsService.deleteBoard(boardId);
-        if (response.statusCode() != 200 && response.statusCode() != 404) {
-            throw new RuntimeException("Cleanup failed");
-        }
-    }
 }

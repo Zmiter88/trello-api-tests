@@ -5,7 +5,6 @@ import factory.UpdateBoardRequestFactory;
 import helper.BoardHelper;
 import io.qameta.allure.*;
 import io.restassured.response.Response;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import service.BoardsService;
@@ -18,7 +17,6 @@ public class UpdateBoardTest extends BaseTest {
 
     private final BoardsService boardsService = new BoardsService();
     private final BoardHelper boardHelper = new BoardHelper();
-    private String boardId;
 
     @Story("Update board")
     @Severity(SeverityLevel.CRITICAL)
@@ -79,13 +77,5 @@ public class UpdateBoardTest extends BaseTest {
         Response updatedResponse = boardsService.updateBoard(invalidId, updateBoardRequest);
         assertThat(updatedResponse.getStatusCode()).isEqualTo(400);
         assertThat(updatedResponse.getBody().asString()).contains("invalid id");
-    }
-
-    @AfterMethod(alwaysRun = true)
-    public void cleanup() {
-        if (boardId != null) {
-            boardHelper.cleanUpBoard(boardId);
-            boardId = null;
-        }
     }
 }
