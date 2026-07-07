@@ -1,12 +1,14 @@
 package tests;
 
 
+import cleanup.BoardCleanup;
 import dto.CreateBoardResponse;
 import dto.DeleteBoardResponse;
 import helper.BoardCleanupService;
 import helper.BoardHelper;
 import io.qameta.allure.*;
 import io.restassured.response.Response;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import service.BoardsService;
 
@@ -20,8 +22,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Feature("Boards")
 public class DeleteBoardTest extends BaseTest {
 
-    BoardsService boardsService = new BoardsService();
-    final private BoardHelper boardHelper = new BoardHelper();
+    private final BoardsService boardsService = new BoardsService();
+    private final BoardHelper boardHelper = new BoardHelper();
+    private final BoardCleanup boardCleanup = new BoardCleanup();
+    private String boardId;
+
+    @AfterMethod(alwaysRun = true)
+    public void cleanup() {
+        if (boardId != null) {
+            boardCleanup.cleanupBoard(boardId);
+            boardId = null;
+        }
+    }
 
     @Story("Delete board")
     @Severity(SeverityLevel.CRITICAL)
@@ -30,14 +42,11 @@ public class DeleteBoardTest extends BaseTest {
     public void deleteBoardHappyPathRefactor() {
 
         CreateBoardResponse board = boardHelper.createBoardSuccessfully();
-        String boardId = board.getId();
+        boardId = board.getId();
         DeleteBoardResponse deleteBoardResponse = boardHelper.deleteBoardSuccessfully(boardId);
         assertThat(deleteBoardResponse.getValue()).isNull();
     }
 
-    private static String generateBoardName() {
-        return "board" + UUID.randomUUID();
-    }
 
     @Story("Delete board")
     @Severity(SeverityLevel.CRITICAL)
@@ -46,7 +55,7 @@ public class DeleteBoardTest extends BaseTest {
     public void deleteBoardAlreadyDeletedRefactor() {
 
         CreateBoardResponse board = boardHelper.createBoardSuccessfully();
-        String boardId = board.getId();
+        boardId = board.getId();
         DeleteBoardResponse deleteBoardResponse = boardHelper.deleteBoardSuccessfully(boardId);
         Response deletedBoardResponse = boardsService.deleteBoard(boardId);
         assertThat(deletedBoardResponse.getStatusCode()).isEqualTo(404);

@@ -1,5 +1,6 @@
 package tests;
 
+import cleanup.BoardCleanup;
 import data.RandomDataGenerator;
 import dto.CreateBoardRequest;
 import dto.CreateBoardResponse;
@@ -7,6 +8,7 @@ import dto.ErrorResponse;
 import factory.CreateBoardRequestFactory;
 import io.qameta.allure.*;
 import io.restassured.response.Response;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import service.BoardsService;
@@ -22,7 +24,17 @@ import static org.hamcrest.Matchers.containsString;
 @Feature("Boards")
 public class CreateBoardTest extends BaseTest {
 
-    BoardsService boardsService = new BoardsService();
+    private final BoardsService boardsService = new BoardsService();
+    private final BoardCleanup boardCleanup = new BoardCleanup();
+    private String boardId;
+
+    @AfterMethod(alwaysRun = true)
+    public void cleanup() {
+        if (boardId != null) {
+            boardCleanup.cleanupBoard(boardId);
+            boardId = null;
+        }
+    }
 
     @DataProvider(name = "validNames")
     public Object[][] validNames() {

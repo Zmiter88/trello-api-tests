@@ -1,10 +1,12 @@
 package tests;
 
+import cleanup.BoardCleanup;
 import dto.*;
 import factory.UpdateBoardRequestFactory;
 import helper.BoardHelper;
 import io.qameta.allure.*;
 import io.restassured.response.Response;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import service.BoardsService;
@@ -17,6 +19,16 @@ public class UpdateBoardTest extends BaseTest {
 
     private final BoardsService boardsService = new BoardsService();
     private final BoardHelper boardHelper = new BoardHelper();
+    private final BoardCleanup boardCleanup = new BoardCleanup();
+    private String boardId;
+
+    @AfterMethod(alwaysRun = true)
+    public void cleanup() {
+        if (boardId != null) {
+            boardCleanup.cleanupBoard(boardId);
+            boardId = null;
+        }
+    }
 
     @Story("Update board")
     @Severity(SeverityLevel.CRITICAL)

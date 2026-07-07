@@ -3,8 +3,6 @@ package tests;
 import config.ConfigProperties;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
-import org.testng.annotations.AfterMethod;
-import service.CleanupService;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -20,19 +18,6 @@ public class BaseTest {
                 .contentType(ContentType.JSON)
                 .queryParam("key", ConfigProperties.API_KEY)
                 .queryParam("token", ConfigProperties.API_TOKEN);
-    }
-
-
-
-    protected CleanupService cleanupService = new CleanupService();
-    protected String boardId;
-
-    @AfterMethod(alwaysRun = true)
-    public void cleanup() {
-        if (boardId != null) {
-            cleanupService.cleanUpBoard(boardId);
-            boardId = null;
-        }
     }
 
 
