@@ -2,7 +2,11 @@ package config;
 
 public class ConfigProperties {
 
-    public static final String API_KEY = System.getProperty("apikey");
-    public static final String API_TOKEN = System.getProperty("apiToken");
     public static final String BASE_URI = System.getProperty("baseUri");
+    public static final String OWNER_API_KEY = System.getProperty("owner.apiKey");
+    public static final String OWNER_API_TOKEN = System.getProperty("owner.apiToken");
+    public static final String SECOND_USER_API_KEY = System.getProperty("secondUser.apiKey");
+    public static final String SECOND_USER_API_TOKEN = System.getProperty("secondUser.apiToken");
+    public static final String INVALID_USER_API_KEY = System.getProperty("invalid.apiKey");
+    public static final String INVALID_USER_API_TOKEN = System.getProperty("invalid.apiToken");
 }

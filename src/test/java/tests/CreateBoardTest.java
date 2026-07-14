@@ -1,14 +1,17 @@
 package tests;
 
 import cleanup.BoardCleanup;
+import context.UserContext;
 import data.RandomDataGenerator;
 import dto.CreateBoardRequest;
 import dto.CreateBoardResponse;
 import dto.ErrorResponse;
 import factory.CreateBoardRequestFactory;
+import factory.UserFactory;
 import io.qameta.allure.*;
 import io.restassured.response.Response;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import service.BoardsService;
@@ -28,12 +31,18 @@ public class CreateBoardTest extends BaseTest {
     private final BoardCleanup boardCleanup = new BoardCleanup();
     private String boardId;
 
+    @BeforeMethod
+    public void setupUser() {
+        UserContext.setCurrentUser(UserFactory.owner());
+    }
+
     @AfterMethod(alwaysRun = true)
     public void cleanup() {
         if (boardId != null) {
             boardCleanup.cleanupBoard(boardId);
             boardId = null;
         }
+        UserContext.clear();
     }
 
     @DataProvider(name = "validNames")
@@ -165,4 +174,17 @@ public class CreateBoardTest extends BaseTest {
         assertThat(createBoardResponse.getPrefs().getBackground()).isEqualTo(defaultColor);
     }
 
+    @Test(dataProvider = "validNames")
+    public void shouldAllowSecondUserToCreateBoard(String name) {
+
+        UserContext.setCurrentUser(UserFactory.member());
+
+        CreateBoardRequest request = CreateBoardRequestFactory.withName(name);
+
+        Response response = boardsService.createBoard(request);
+        assertThat(response.getStatusCode()).isEqualTo(200);
+        CreateBoardResponse createBoardResponse = response.as(CreateBoardResponse.class);
+        boardId = createBoardResponse.getId();
+        assertThat(createBoardResponse.getName()).isEqualTo(name);
+    }
 }

@@ -1,12 +1,15 @@
 package tests;
 
 import cleanup.BoardCleanup;
+import context.UserContext;
 import dto.*;
 import factory.UpdateBoardRequestFactory;
+import factory.UserFactory;
 import helper.BoardHelper;
 import io.qameta.allure.*;
 import io.restassured.response.Response;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import service.BoardsService;
@@ -22,12 +25,18 @@ public class UpdateBoardTest extends BaseTest {
     private final BoardCleanup boardCleanup = new BoardCleanup();
     private String boardId;
 
+    @BeforeMethod
+    public void setupUser() {
+        UserContext.setCurrentUser(UserFactory.owner());
+    }
+
     @AfterMethod(alwaysRun = true)
     public void cleanup() {
         if (boardId != null) {
             boardCleanup.cleanupBoard(boardId);
             boardId = null;
         }
+        UserContext.clear();
     }
 
     @Story("Update board")

@@ -2,18 +2,20 @@ package tests;
 
 
 import cleanup.BoardCleanup;
+import context.UserContext;
 import dto.CreateBoardResponse;
 import dto.DeleteBoardResponse;
+import factory.UserFactory;
 import helper.BoardCleanupService;
 import helper.BoardHelper;
 import io.qameta.allure.*;
 import io.restassured.response.Response;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import service.BoardsService;
 
 import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,12 +29,18 @@ public class DeleteBoardTest extends BaseTest {
     private final BoardCleanup boardCleanup = new BoardCleanup();
     private String boardId;
 
+    @BeforeMethod
+    public void setupUser() {
+        UserContext.setCurrentUser(UserFactory.owner());
+    }
+
     @AfterMethod(alwaysRun = true)
     public void cleanup() {
         if (boardId != null) {
             boardCleanup.cleanupBoard(boardId);
             boardId = null;
         }
+        UserContext.clear();
     }
 
     @Story("Delete board")
