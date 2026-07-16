@@ -6,6 +6,8 @@ import dto.CreateBoardRequest;
 import dto.UpdateBoardRequest;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
+import model.BoardMemberType;
+import model.User;
 import utils.AllureAttachments;
 
 import java.util.Map;
@@ -77,6 +79,15 @@ public class BoardsService extends BaseService {
 
     //    AllureAttachments.attachResponse("Update Board Response", response.getBody().asString());
 
+        return response;
+    }
+
+    public Response addMember(String boardId, User user, BoardMemberType type) {
+        Response response = getRequestSpecification()
+                .pathParam("id", boardId)
+                .pathParam("idMember", user.getMemberId())
+                .queryParam("type", type.name().toLowerCase())
+                .put(Endpoint.BOARDS.getUrl() + "/{id}" + Endpoint.MEMBERS.getUrl() + "/{idMember}");
         return response;
     }
 }

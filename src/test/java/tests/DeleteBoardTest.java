@@ -36,6 +36,7 @@ public class DeleteBoardTest extends BaseTest {
 
     @AfterMethod(alwaysRun = true)
     public void cleanup() {
+        UserContext.setCurrentUser(UserFactory.owner());
         if (boardId != null) {
             boardCleanup.cleanupBoard(boardId);
             boardId = null;

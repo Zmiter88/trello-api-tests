@@ -7,7 +7,8 @@ public enum Endpoint {
 
     BOARDS("/boards"),
     CARDS("/cards"),
-    LISTS("/lists");
+    LISTS("/lists"),
+    MEMBERS("/members");
 
 
     private final String url;

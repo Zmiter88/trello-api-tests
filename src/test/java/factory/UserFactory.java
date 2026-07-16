@@ -12,6 +12,7 @@ public class UserFactory {
                 .apiKey(ConfigProperties.OWNER_API_KEY)
                 .apiToken(ConfigProperties.OWNER_API_TOKEN)
                 .role(Role.OWNER)
+                .memberId(ConfigProperties.OWNER_MEMBER_ID)
                 .build();
     }
 
@@ -21,6 +22,7 @@ public class UserFactory {
                 .apiKey(ConfigProperties.SECOND_USER_API_KEY)
                 .apiToken(ConfigProperties.SECOND_USER_API_TOKEN)
                 .role(Role.MEMBER)
+                .memberId(ConfigProperties.SECOND_USER_MEMBER_ID)
                 .build();
     }
 

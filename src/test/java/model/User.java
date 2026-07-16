@@ -9,5 +9,6 @@ public class User {
     String name;
     String apiKey;
     String apiToken;
+    String memberId;
     Role role;
 }
