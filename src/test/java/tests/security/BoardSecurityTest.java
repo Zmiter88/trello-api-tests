@@ -1,6 +1,7 @@
 package tests.security;
 
 import cleanup.BoardCleanup;
+import constants.ErrorMessages;
 import context.UserContext;
 import dto.*;
 import factory.CreateBoardRequestFactory;
@@ -40,7 +41,7 @@ public class BoardSecurityTest extends BaseTest {
         CreateBoardRequest request = CreateBoardRequestFactory.defaultBoard();
         Response response = boardsService.createBoard(request);
         assertThat(response.getStatusCode()).isEqualTo(401);
-        assertThat(response.getBody().asString()).isEqualTo("invalid key");
+        assertThat(response.getBody().asString()).isEqualTo(ErrorMessages.INVALID_KEY);
     }
 
     @Test
@@ -50,7 +51,7 @@ public class BoardSecurityTest extends BaseTest {
         CreateBoardRequest request = CreateBoardRequestFactory.defaultBoard();
         Response response = boardsService.createBoard(request);
         assertThat(response.getStatusCode()).isEqualTo(401);
-        assertThat(response.getBody().asString()).isEqualTo("invalid app token");
+        assertThat(response.getBody().asString()).isEqualTo(ErrorMessages.INVALID_APP_TOKEN);
     }
 
     @Test
@@ -60,7 +61,7 @@ public class BoardSecurityTest extends BaseTest {
         CreateBoardRequest request = CreateBoardRequestFactory.defaultBoard();
         Response response = boardsService.createBoard(request);
         assertThat(response.getStatusCode()).isEqualTo(401);
-        assertThat(response.getBody().asString()).isEqualTo("invalid key");
+        assertThat(response.getBody().asString()).isEqualTo(ErrorMessages.INVALID_KEY);
     }
 
     @Test
@@ -70,7 +71,7 @@ public class BoardSecurityTest extends BaseTest {
         CreateBoardRequest request = CreateBoardRequestFactory.defaultBoard();
         Response response = boardsService.createBoard(request);
         assertThat(response.getStatusCode()).isEqualTo(401);
-        assertThat(response.getBody().asString()).contains("missing scopes");
+        assertThat(response.getBody().asString()).isEqualTo(ErrorMessages.MISSING_SCOPES);
     }
 
     @Test
@@ -87,7 +88,7 @@ public class BoardSecurityTest extends BaseTest {
 
         Response updateBoardResponse = boardsService.updateBoard(boardId, updateBoardRequest);
         assertThat(updateBoardResponse.getStatusCode()).isEqualTo(401);
-        assertThat(updateBoardResponse.getBody().asString()).contains("unauthorized permission requested");
+        assertThat(updateBoardResponse.getBody().asString()).isEqualTo(ErrorMessages.UNAUTHORIZED_PERMISSION_REQUESTED);
     }
 
     @Test
@@ -103,7 +104,7 @@ public class BoardSecurityTest extends BaseTest {
         Response deleteBoardResponse = boardsService.deleteBoard(boardId);
 
         assertThat(deleteBoardResponse.getStatusCode()).isEqualTo(401);
-        assertThat(deleteBoardResponse.getBody().asString()).contains("unauthorized permission requested");
+        assertThat(deleteBoardResponse.getBody().asString()).isEqualTo(ErrorMessages.UNAUTHORIZED_PERMISSION_REQUESTED);
     }
 
     @Test
@@ -134,6 +135,6 @@ public class BoardSecurityTest extends BaseTest {
         UpdateBoardRequest updateBoardRequest = UpdateBoardRequestFactory.defaultUpdate();
         Response updateResponse = boardsService.updateBoard(boardId, updateBoardRequest);
         assertThat(updateResponse.getStatusCode()).isEqualTo(401);
-        assertThat(updateResponse.getBody().asString()).contains("unauthorized permission requested");
+        assertThat(updateResponse.getBody().asString()).isEqualTo(ErrorMessages.UNAUTHORIZED_PERMISSION_REQUESTED);
     }
 }
