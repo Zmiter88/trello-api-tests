@@ -1,5 +1,8 @@
 package helper;
 
+import context.TestContext;
+import context.TestContextHolder;
+import context.UserContext;
 import dto.*;
 import factory.CreateBoardRequestFactory;
 import io.restassured.response.Response;
@@ -12,12 +15,26 @@ public class BoardHelper {
 
     private final BoardsService boardsService = new BoardsService();
 
+
+    public Response createBoard(CreateBoardRequest request) {
+        return boardsService.createBoard(request);
+    }
+
     public CreateBoardResponse createBoardSuccessfully() {
         CreateBoardRequest request = CreateBoardRequestFactory.defaultBoard();
         Response response = boardsService.createBoard(request);
         assertThat(response.getStatusCode()).isEqualTo(200);
-        CreateBoardResponse createBoardResponse = response.as(CreateBoardResponse.class);
-        return createBoardResponse;
+        CreateBoardResponse board = response.as(CreateBoardResponse.class);
+        saveBoardContext(board);
+        return board;
+    }
+
+    public CreateBoardResponse createBoardSuccessfully(CreateBoardRequest request) {
+        Response response = boardsService.createBoard(request);
+        assertThat(response.getStatusCode()).isEqualTo(200);
+        CreateBoardResponse board = response.as(CreateBoardResponse.class);
+        saveBoardContext(board);
+        return board;
     }
 
     public UpdateBoardResponse updateBoardSuccessfully(CreateBoardResponse board, UpdateBoardRequest updateBoardRequest) {
@@ -32,5 +49,13 @@ public class BoardHelper {
         assertThat(deleteResponse.getStatusCode()).isEqualTo(200);
         DeleteBoardResponse deleteBoardResponse = deleteResponse.as(DeleteBoardResponse.class);
         return deleteBoardResponse;
+    }
+
+    private void saveBoardContext(CreateBoardResponse board) {
+
+        TestContext context = TestContextHolder.getTestContext();
+
+        context.setBoardId(board.getId());
+        context.setBoardCreator(UserContext.getCurrentUser());
     }
 }

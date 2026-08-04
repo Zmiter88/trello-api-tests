@@ -2,6 +2,8 @@ package tests.security;
 
 import cleanup.BoardCleanup;
 import constants.ErrorMessages;
+import context.TestContext;
+import context.TestContextHolder;
 import context.UserContext;
 import dto.*;
 import factory.CreateBoardRequestFactory;
@@ -10,6 +12,7 @@ import factory.UserFactory;
 import helper.BoardHelper;
 import io.restassured.response.Response;
 import model.BoardMemberType;
+import model.User;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import service.BoardsService;
@@ -22,16 +25,21 @@ public class BoardSecurityTest extends BaseTest {
     private final BoardsService boardsService = new BoardsService();
     private final BoardHelper boardHelper = new BoardHelper();
     private final BoardCleanup boardCleanup = new BoardCleanup();
-    private String boardId;
 
     @AfterMethod(alwaysRun = true)
     public void cleanup() {
-        UserContext.setCurrentUser(UserFactory.owner());
-        if (boardId != null) {
+        TestContext context = TestContextHolder.getTestContext();
+        String boardId = context.getBoardId();
+        User boardCreator = context.getBoardCreator();
+        if (boardId != null && boardCreator != null) {
+            UserContext.setCurrentUser(boardCreator);
             boardCleanup.cleanupBoard(boardId);
-            boardId = null;
         }
+        context.setBoardId(null);
+        context.setBoardCreator(null);
+
         UserContext.clear();
+        TestContextHolder.clear();
     }
 
     @Test
@@ -79,14 +87,13 @@ public class BoardSecurityTest extends BaseTest {
 
         UserContext.setCurrentUser(UserFactory.owner());
 
-        CreateBoardResponse board = boardHelper.createBoardSuccessfully();
-        boardId = board.getId();
+        CreateBoardResponse boardResponse = boardHelper.createBoardSuccessfully();
 
         UserContext.setCurrentUser(UserFactory.member());
 
         UpdateBoardRequest updateBoardRequest = UpdateBoardRequestFactory.defaultUpdate();
 
-        Response updateBoardResponse = boardsService.updateBoard(boardId, updateBoardRequest);
+        Response updateBoardResponse = boardsService.updateBoard(boardResponse.getId(), updateBoardRequest);
         assertThat(updateBoardResponse.getStatusCode()).isEqualTo(401);
         assertThat(updateBoardResponse.getBody().asString()).isEqualTo(ErrorMessages.UNAUTHORIZED_PERMISSION_REQUESTED);
     }
@@ -96,12 +103,11 @@ public class BoardSecurityTest extends BaseTest {
 
         UserContext.setCurrentUser(UserFactory.owner());
 
-        CreateBoardResponse board = boardHelper.createBoardSuccessfully();
-        boardId = board.getId();
+        CreateBoardResponse boardResponse = boardHelper.createBoardSuccessfully();
 
         UserContext.setCurrentUser(UserFactory.member());
 
-        Response deleteBoardResponse = boardsService.deleteBoard(boardId);
+        Response deleteBoardResponse = boardsService.deleteBoard(boardResponse.getId());
 
         assertThat(deleteBoardResponse.getStatusCode()).isEqualTo(401);
         assertThat(deleteBoardResponse.getBody().asString()).isEqualTo(ErrorMessages.UNAUTHORIZED_PERMISSION_REQUESTED);
@@ -111,13 +117,12 @@ public class BoardSecurityTest extends BaseTest {
     public void shouldAllowMemberAddedAsAdminByOwnerToUpdateBoard() {
 
         UserContext.setCurrentUser(UserFactory.owner());
-        CreateBoardResponse board = boardHelper.createBoardSuccessfully();
-        boardId = board.getId();
-        Response addMemberResponse = boardsService.addMember(boardId, UserFactory.member(), BoardMemberType.ADMIN);
+        CreateBoardResponse boardResponse = boardHelper.createBoardSuccessfully();
+        Response addMemberResponse = boardsService.addMember(boardResponse.getId(), UserFactory.member(), BoardMemberType.ADMIN);
         assertThat(addMemberResponse.getStatusCode()).isEqualTo(200);
         UserContext.setCurrentUser(UserFactory.member());
         UpdateBoardRequest updateBoardRequest = UpdateBoardRequestFactory.defaultUpdate();
-        Response updateResponse = boardsService.updateBoard(boardId, updateBoardRequest);
+        Response updateResponse = boardsService.updateBoard(boardResponse.getId(), updateBoardRequest);
         assertThat(updateResponse.getStatusCode()).isEqualTo(200);
         UpdateBoardResponse updateBoardResponse = updateResponse.as(UpdateBoardResponse.class);
         assertThat(updateBoardResponse.getName()).isEqualTo(updateBoardRequest.getName());
@@ -127,13 +132,12 @@ public class BoardSecurityTest extends BaseTest {
     public void shouldNotAllowMemberAddedAsNormalByOwnerToUpdateBoard() {
 
         UserContext.setCurrentUser(UserFactory.owner());
-        CreateBoardResponse board = boardHelper.createBoardSuccessfully();
-        boardId = board.getId();
-        Response addMemberResponse = boardsService.addMember(boardId, UserFactory.member(), BoardMemberType.NORMAL);
+        CreateBoardResponse boardResponse = boardHelper.createBoardSuccessfully();
+        Response addMemberResponse = boardsService.addMember(boardResponse.getId(), UserFactory.member(), BoardMemberType.NORMAL);
         assertThat(addMemberResponse.getStatusCode()).isEqualTo(200);
         UserContext.setCurrentUser(UserFactory.member());
         UpdateBoardRequest updateBoardRequest = UpdateBoardRequestFactory.defaultUpdate();
-        Response updateResponse = boardsService.updateBoard(boardId, updateBoardRequest);
+        Response updateResponse = boardsService.updateBoard(boardResponse.getId(), updateBoardRequest);
         assertThat(updateResponse.getStatusCode()).isEqualTo(401);
         assertThat(updateResponse.getBody().asString()).isEqualTo(ErrorMessages.UNAUTHORIZED_PERMISSION_REQUESTED);
     }

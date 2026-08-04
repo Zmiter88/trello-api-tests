@@ -65,6 +65,19 @@ public class BoardsService extends BaseService {
         return response;
     }
 
+    public Response getMyBoards() {
+
+        //  AllureAttachments.attachRequest("Get Board Request", boardId);
+
+        Response response = getRequestSpecification()
+                .when()
+                .get( "member/me/boards");
+
+        //   AllureAttachments.attachResponse("Get Board Response", response.getBody().asString());
+
+        return response;
+    }
+
     @Step("Update board {boardId} with new data")
     public Response updateBoard(String boardId, UpdateBoardRequest updateRequest) {
 

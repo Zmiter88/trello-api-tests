@@ -1,5 +1,6 @@
 package cleanup;
 
+import dto.BoardResponse;
 import io.restassured.response.Response;
 import service.BoardsService;
 
@@ -12,5 +13,18 @@ public class BoardCleanup {
             if (response.statusCode() != 200 && response.statusCode() != 404) {
                 throw new RuntimeException("Cleanup failed");
             }
+    }
+
+    public void cleanupAllBoards() {
+        Response response = boardsService.getMyBoards();
+
+        if (response.statusCode() != 200) {
+            throw new RuntimeException("Cannot get boards");
+        }
+
+        BoardResponse[] boards = response.as(BoardResponse[].class);
+        for (BoardResponse board : boards) {
+            cleanupBoard(board.getId());
+        }
     }
 }

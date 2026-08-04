@@ -31,4 +31,12 @@ public class CreateBoardRequestFactory {
                 .desc(RandomDataGenerator.description())
                 .build();
     }
+
+    public static CreateBoardRequest withColor(String color) {
+        return CreateBoardRequest.builder()
+                .name(RandomDataGenerator.boardName())
+                .prefsBackground(color)
+                .desc(RandomDataGenerator.description())
+                .build();
+    }
 }

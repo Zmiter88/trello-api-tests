@@ -1,15 +1,18 @@
 package tests;
 
 import cleanup.BoardCleanup;
+import context.TestContext;
+import context.TestContextHolder;
 import context.UserContext;
-import data.RandomDataGenerator;
 import dto.CreateBoardRequest;
 import dto.CreateBoardResponse;
 import dto.ErrorResponse;
 import factory.CreateBoardRequestFactory;
 import factory.UserFactory;
+import helper.BoardHelper;
 import io.qameta.allure.*;
 import io.restassured.response.Response;
+import model.User;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -17,10 +20,6 @@ import org.testng.annotations.Test;
 import service.BoardsService;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.UUID;
-
-
 import static org.hamcrest.Matchers.containsString;
 
 @Epic("Trello API")
@@ -29,7 +28,7 @@ public class CreateBoardTest extends BaseTest {
 
     private final BoardsService boardsService = new BoardsService();
     private final BoardCleanup boardCleanup = new BoardCleanup();
-    private String boardId;
+    private final BoardHelper boardHelper = new BoardHelper();
 
     @BeforeMethod
     public void setupUser() {
@@ -38,12 +37,18 @@ public class CreateBoardTest extends BaseTest {
 
     @AfterMethod(alwaysRun = true)
     public void cleanup() {
-        UserContext.setCurrentUser(UserFactory.owner());
-        if (boardId != null) {
+        TestContext context = TestContextHolder.getTestContext();
+        String boardId = context.getBoardId();
+        User boardCreator = context.getBoardCreator();
+        if (boardId != null && boardCreator != null) {
+            UserContext.setCurrentUser(boardCreator);
             boardCleanup.cleanupBoard(boardId);
-            boardId = null;
         }
+        context.setBoardId(null);
+        context.setBoardCreator(null);
+
         UserContext.clear();
+        TestContextHolder.clear();
     }
 
     @DataProvider(name = "validNames")
@@ -63,11 +68,9 @@ public class CreateBoardTest extends BaseTest {
 
         CreateBoardRequest request = CreateBoardRequestFactory.withName(name);
 
-        Response response = boardsService.createBoard(request);
-        assertThat(response.getStatusCode()).isEqualTo(200);
-        CreateBoardResponse createBoardResponse = response.as(CreateBoardResponse.class);
-        boardId = createBoardResponse.getId();
-        assertThat(createBoardResponse.getName()).isEqualTo(name);
+        CreateBoardResponse board = boardHelper.createBoardSuccessfully(request);
+
+        assertThat(board.getName()).isEqualTo(name);
     }
 
     @DataProvider(name = "invalidNames")
@@ -86,7 +89,7 @@ public class CreateBoardTest extends BaseTest {
 
         CreateBoardRequest request = CreateBoardRequestFactory.withName(name);
 
-        Response response = boardsService.createBoard(request);
+        Response response = boardHelper.createBoard(request);
         assertThat(response.getStatusCode()).isEqualTo(400);
         ErrorResponse errorResponse = response.as(ErrorResponse.class);
 
@@ -130,18 +133,11 @@ public class CreateBoardTest extends BaseTest {
     @Test(dataProvider = "validColors")
     public void shouldSetValidBackgroundFieldRefactor(String color) {
 
-        String boardName = "board-" + color + "-" + UUID.randomUUID();
-        CreateBoardRequest request = CreateBoardRequest.builder()
-                .name(boardName)
-                .prefsBackground(color)
-                .build();
+        CreateBoardRequest request = CreateBoardRequestFactory.withColor(color);
 
-        Response response = boardsService.createBoard(request);
-        assertThat(response.getStatusCode()).isEqualTo(200);
-        CreateBoardResponse createBoardResponse = response.as(CreateBoardResponse.class);
-        boardId = createBoardResponse.getId();
-        assertThat(createBoardResponse.getName()).isEqualTo(boardName);
-        assertThat(createBoardResponse.getPrefs().getBackground()).isEqualTo(color);
+        CreateBoardResponse board = boardHelper.createBoardSuccessfully(request);
+        assertThat(board.getName()).isEqualTo(request.getName());
+        assertThat(board.getPrefs().getBackground()).isEqualTo(color);
     }
 
     @DataProvider(name = "invalidColors")
@@ -160,32 +156,22 @@ public class CreateBoardTest extends BaseTest {
     @Test(dataProvider = "invalidColors")
     public void shouldSetDefaultColorBlueWhenPrefsBackgroundIsInvalidRefactor(String color) {
 
-        String boardName = RandomDataGenerator.boardName();
         String defaultColor = "blue";
 
-        CreateBoardRequest request = CreateBoardRequest.builder()
-                .name(boardName)
-                .prefsBackground(color)
-                .build();
+       CreateBoardRequest request = CreateBoardRequestFactory.withColor(color);
 
-        Response response = boardsService.createBoard(request);
-        assertThat(response.getStatusCode()).isEqualTo(200);
-        CreateBoardResponse createBoardResponse = response.as(CreateBoardResponse.class);
-        assertThat(createBoardResponse.getName()).isEqualTo(boardName);
+        CreateBoardResponse createBoardResponse = boardHelper.createBoardSuccessfully(request);
+        assertThat(createBoardResponse.getName()).isEqualTo(request.getName());
         assertThat(createBoardResponse.getPrefs().getBackground()).isEqualTo(defaultColor);
     }
 
-    @Test(dataProvider = "validNames")
-    public void shouldAllowSecondUserToCreateBoard(String name) {
+    @Test
+    public void shouldAllowSecondUserToCreateBoard() {
 
         UserContext.setCurrentUser(UserFactory.member());
 
-        CreateBoardRequest request = CreateBoardRequestFactory.withName(name);
-
-        Response response = boardsService.createBoard(request);
-        assertThat(response.getStatusCode()).isEqualTo(200);
-        CreateBoardResponse createBoardResponse = response.as(CreateBoardResponse.class);
-        boardId = createBoardResponse.getId();
-        assertThat(createBoardResponse.getName()).isEqualTo(name);
+        CreateBoardRequest request = CreateBoardRequestFactory.defaultBoard();
+        CreateBoardResponse board = boardHelper.createBoardSuccessfully(request);
+        assertThat(board.getName()).isEqualTo(request.getName());
     }
 }

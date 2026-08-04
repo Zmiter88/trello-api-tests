@@ -1,6 +1,8 @@
 package tests;
 
 import cleanup.BoardCleanup;
+import context.TestContext;
+import context.TestContextHolder;
 import context.UserContext;
 import dto.*;
 import factory.UpdateBoardRequestFactory;
@@ -8,6 +10,7 @@ import factory.UserFactory;
 import helper.BoardHelper;
 import io.qameta.allure.*;
 import io.restassured.response.Response;
+import model.User;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -23,7 +26,6 @@ public class UpdateBoardTest extends BaseTest {
     private final BoardsService boardsService = new BoardsService();
     private final BoardHelper boardHelper = new BoardHelper();
     private final BoardCleanup boardCleanup = new BoardCleanup();
-    private String boardId;
 
     @BeforeMethod
     public void setupUser() {
@@ -32,12 +34,18 @@ public class UpdateBoardTest extends BaseTest {
 
     @AfterMethod(alwaysRun = true)
     public void cleanup() {
-        UserContext.setCurrentUser(UserFactory.owner());
-        if (boardId != null) {
+        TestContext context = TestContextHolder.getTestContext();
+        String boardId = context.getBoardId();
+        User boardCreator = context.getBoardCreator();
+        if (boardId != null && boardCreator != null) {
+            UserContext.setCurrentUser(boardCreator);
             boardCleanup.cleanupBoard(boardId);
-            boardId = null;
         }
+        context.setBoardId(null);
+        context.setBoardCreator(null);
+
         UserContext.clear();
+        TestContextHolder.clear();
     }
 
     @Story("Update board")
@@ -47,12 +55,11 @@ public class UpdateBoardTest extends BaseTest {
     public void shouldUpdateBoard() {
 
         // Tworzenie boarda
-        CreateBoardResponse board = boardHelper.createBoardSuccessfully();
-        boardId = board.getId();
+        CreateBoardResponse boardResponse = boardHelper.createBoardSuccessfully();
 
         // Update boarda
         UpdateBoardRequest updateBoardRequest = UpdateBoardRequestFactory.defaultUpdate();
-        UpdateBoardResponse updateBoardResponse = boardHelper.updateBoardSuccessfully(board, updateBoardRequest);
+        UpdateBoardResponse updateBoardResponse = boardHelper.updateBoardSuccessfully(boardResponse, updateBoardRequest);
         assertThat(updateBoardResponse.getName()).isEqualTo(updateBoardRequest.getName());
         assertThat(updateBoardResponse.getPrefs().getBackground()).isEqualTo(updateBoardRequest.getPrefsBackground());
     }
@@ -72,12 +79,11 @@ public class UpdateBoardTest extends BaseTest {
     public void shouldNotAllowUpdateBoardWithInvalidName(String boardName) {
 
         // Tworzenie boarda
-        CreateBoardResponse board = boardHelper.createBoardSuccessfully();
-        boardId = board.getId();
+        CreateBoardResponse boardResponse = boardHelper.createBoardSuccessfully();
 
         // Update boarda
         UpdateBoardRequest updateBoardRequest = UpdateBoardRequestFactory.withName(boardName);
-        Response updatedResponse = boardsService.updateBoard(board.getId(), updateBoardRequest);
+        Response updatedResponse = boardsService.updateBoard(boardResponse.getId(), updateBoardRequest);
         assertThat(updatedResponse.getStatusCode()).isEqualTo(400);
         ErrorResponse errorResponse = updatedResponse.as(ErrorResponse.class);
         assertThat(errorResponse.getMessage()).isEqualTo("invalid value for name");

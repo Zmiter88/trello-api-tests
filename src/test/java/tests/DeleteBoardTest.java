@@ -2,20 +2,20 @@ package tests;
 
 
 import cleanup.BoardCleanup;
+import context.TestContext;
+import context.TestContextHolder;
 import context.UserContext;
 import dto.CreateBoardResponse;
 import dto.DeleteBoardResponse;
 import factory.UserFactory;
-import helper.BoardCleanupService;
 import helper.BoardHelper;
 import io.qameta.allure.*;
 import io.restassured.response.Response;
+import model.User;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import service.BoardsService;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,7 +27,6 @@ public class DeleteBoardTest extends BaseTest {
     private final BoardsService boardsService = new BoardsService();
     private final BoardHelper boardHelper = new BoardHelper();
     private final BoardCleanup boardCleanup = new BoardCleanup();
-    private String boardId;
 
     @BeforeMethod
     public void setupUser() {
@@ -36,12 +35,18 @@ public class DeleteBoardTest extends BaseTest {
 
     @AfterMethod(alwaysRun = true)
     public void cleanup() {
-        UserContext.setCurrentUser(UserFactory.owner());
-        if (boardId != null) {
+        TestContext context = TestContextHolder.getTestContext();
+        String boardId = context.getBoardId();
+        User boardCreator = context.getBoardCreator();
+        if (boardId != null && boardCreator != null) {
+            UserContext.setCurrentUser(boardCreator);
             boardCleanup.cleanupBoard(boardId);
-            boardId = null;
         }
+        context.setBoardId(null);
+        context.setBoardCreator(null);
+
         UserContext.clear();
+        TestContextHolder.clear();
     }
 
     @Story("Delete board")
@@ -50,9 +55,8 @@ public class DeleteBoardTest extends BaseTest {
     @Test
     public void deleteBoardHappyPathRefactor() {
 
-        CreateBoardResponse board = boardHelper.createBoardSuccessfully();
-        boardId = board.getId();
-        DeleteBoardResponse deleteBoardResponse = boardHelper.deleteBoardSuccessfully(boardId);
+        CreateBoardResponse boardResponse = boardHelper.createBoardSuccessfully();
+        DeleteBoardResponse deleteBoardResponse = boardHelper.deleteBoardSuccessfully(boardResponse.getId());
         assertThat(deleteBoardResponse.getValue()).isNull();
     }
 
@@ -63,22 +67,12 @@ public class DeleteBoardTest extends BaseTest {
     @Test
     public void deleteBoardAlreadyDeletedRefactor() {
 
-        CreateBoardResponse board = boardHelper.createBoardSuccessfully();
-        boardId = board.getId();
-        DeleteBoardResponse deleteBoardResponse = boardHelper.deleteBoardSuccessfully(boardId);
-        Response deletedBoardResponse = boardsService.deleteBoard(boardId);
+        CreateBoardResponse boardResponse = boardHelper.createBoardSuccessfully();
+        DeleteBoardResponse deleteBoardResponse = boardHelper.deleteBoardSuccessfully(boardResponse.getId());
+        Response deletedBoardResponse = boardsService.deleteBoard(boardResponse.getId());
         assertThat(deletedBoardResponse.getStatusCode()).isEqualTo(404);
         assertThat(deletedBoardResponse.getBody().asString()).contains("not found.");
 
-    }
-
-    @Test
-    public void deleteAllBoardsTest() {
-        getRequestSpecification();
-        BoardCleanupService cleanupService = new BoardCleanupService();
-        cleanupService.deleteAllBoards();
-        List<String> remainingBoards = cleanupService.getAllBoards();
-        assertThat(remainingBoards.isEmpty()).isTrue();
     }
 }
 

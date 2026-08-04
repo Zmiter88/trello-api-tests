@@ -8,6 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateListRequest {
-    private String listName;
+    private String name;
     private String idBoard;
 }
