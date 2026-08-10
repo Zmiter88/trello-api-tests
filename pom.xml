@@ -72,6 +72,9 @@
                             <value>io.qameta.allure.testng.AllureTestNg</value>
                         </property>
                     </properties>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
                 </configuration>
             </plugin>
         </plugins>

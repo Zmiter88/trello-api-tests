@@ -2,16 +2,17 @@ package context;
 
 
 public class TestContextHolder {
-    private static TestContext testContext;
+
+    private static final ThreadLocal<TestContext> testContext = new ThreadLocal<>();
 
     public static TestContext getTestContext() {
-        if (testContext == null) {
-            testContext = new TestContext();
+        if (testContext.get() == null) {
+            testContext.set(new TestContext());
         }
-        return testContext;
+        return testContext.get();
     }
 
     public static void clear() {
-        testContext = null;
+        testContext.remove();
     }
 }

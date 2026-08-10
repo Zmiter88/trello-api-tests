@@ -1,16 +1,20 @@
 package context;
-
-import lombok.Getter;
-import lombok.Setter;
 import model.User;
 
 
 public class UserContext {
-    @Getter
-    @Setter
-    private static User currentUser;
+
+    private static final ThreadLocal<User> currentUser = new ThreadLocal<>();
+
+    public static User getCurrentUser() {
+        return currentUser.get();
+    }
+
+    public static void setCurrentUser(User user) {
+        currentUser.set(user);
+    }
 
     public static void clear() {
-        currentUser = null;
+        currentUser.remove();
     }
 }
