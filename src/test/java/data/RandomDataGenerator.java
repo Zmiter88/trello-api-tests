@@ -16,4 +16,8 @@ public class RandomDataGenerator {
         String[] colors = {"blue", "red", "green", "yellow"};
         return colors[(int) (Math.random() * colors.length)];
     }
+
+    public static String customFieldName() {
+        return "custom-field-" + UUID.randomUUID();
+    }
 }

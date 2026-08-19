@@ -8,7 +8,8 @@ public enum Endpoint {
     BOARDS("/boards"),
     CARDS("/cards"),
     LISTS("/lists"),
-    MEMBERS("/members");
+    MEMBERS("/members"),
+    CUSTOM_FIELDS("/customFields");
 
 
     private final String url;
