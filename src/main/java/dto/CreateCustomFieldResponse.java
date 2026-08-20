@@ -13,4 +13,6 @@ public class CreateCustomFieldResponse {
     private String idModel;
     private String modelType;
     private String type;
+    private String name;
+    private Long pos;
 }
